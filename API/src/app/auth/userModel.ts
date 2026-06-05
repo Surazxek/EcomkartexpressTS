@@ -1,0 +1,37 @@
+import mongoose from "mongoose";
+import { Role } from "../../types/globalTypes";
+
+const UserSchema = new mongoose.Schema(
+  {
+    full_name: {
+      type: String,
+      required: [true, "full_name is required"],
+      trim: true,
+    },
+    email: {
+      type: String,
+      required: [true, "Email is required"],
+      unique: true,
+    },
+    password: {
+      type: String,
+      required: [true, "Password is required"],
+      minlength: [6, "Password length must be at least 6 characters"],
+    },
+    phone_number: {
+      type: String,
+    },
+    role: {
+      type: String,
+      enum: Object.values(Role),
+      default: Role.USER,
+    },
+  },
+  {
+    timestamps: true,
+    autoIndex: true,
+    autoCreate: true,
+  },
+);
+
+export const UserModel = mongoose.model("User", UserSchema);
