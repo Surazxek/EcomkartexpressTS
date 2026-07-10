@@ -1,19 +1,21 @@
 import { type Request, type Response, type NextFunction } from "express";
+import { Types } from "mongoose";
 import { UserModel } from "./userModel";
 import { hash } from "../../utils/bcrypt";
 import { compare } from "bcrypt";
-import { success } from "zod";
+import CustomError from "../../middleware/Error-handler";
+import { asyncHandler } from "../../utils/async-handler";
+import { generateJWTToken } from "../../utils/jwt.utils";
+import { Role, type JWTPayload } from "../../types/globalTypes";
 
-// Register User
-class Usercontroller {
-  async register(req: Request, res: Response, next: NextFunction) {
-    try {
-      // req.body
-      console.log(req.body);
+class UserController {
+  // Register User
+  register = asyncHandler(
+    async (req: Request, res: Response, next: NextFunction): Promise<void> => {
       const { email, full_name, password, phone_number } = req.body;
 
       if (!password) {
-        throw new Error("Password is required.");
+        throw new CustomError("Password is required.", 400);
       }
 
       const hashedPassword = await hash(password);
@@ -26,73 +28,82 @@ class Usercontroller {
       });
 
       if (!user) {
-        throw new Error("Registration failed. Try Again");
+        throw new CustomError("Registration failed. Try Again", 409);
       }
-      res.status(201).json({
-        message: "User Registered",
-        sucess: true,
-        status: "success",
-        data: user,
-      });
 
       res.status(201).json({
         message: "User registered successfully",
         success: true,
-        data: user,
-      });
-    } catch (error) {
-      res.status(500).json({
-        message:
-          error instanceof Error ? error.message : "Something went wrong",
-        success: false,
-        status: "fail",
-      });
-    }
-  }
-
-  async login(req: Request, res: Response, next: NextFunction) {
-    try {
-      // body [email, password]
-      const { email, password } = req.body;
-
-      if (!email) {
-        throw new Error("email is required.");
-      }
-
-      if (!password) {
-        throw new Error("Password is required.");
-      }
-
-      //find user by email
-      const user = await UserModel.findOne({ email });
-      //no user throw error
-      if (!user) {
-        throw new Error("User not found");
-      }
-
-      // if user compare password it takes 2 things password,hashedpassword
-      const isPasswordMatched = await compare(password, user.password);
-
-      //!match pass
-      if (!isPasswordMatched) {
-        throw new Error("Password doesnt");
-      }
-
-      res.status(200).json({
-        message: "Login success",
-        success: "true",
         status: "success",
         data: user,
       });
-    } catch (error) {
-      res.status(500).json({
-        message:
-          error instanceof Error ? error.message : "Something went wrong",
-        success: false,
-        status: "fail",
-      });
-    }
-  }
+    },
+  );
+
+  login = asyncHandler(
+    async (req: Request, res: Response, next: NextFunction) => {
+      const { email, password } = req.body;
+
+      // Find user by email
+      const user = await UserModel.findOne({ email });
+      if (!user) {
+        throw new CustomError("Invalid email or password", 401);
+      }
+
+      // Compare credentials
+      const isPasswordMatched = await compare(password, user.password);
+      if (!isPasswordMatched) {
+        throw new CustomError("Invalid email or password", 401);
+      }
+
+      //jwt here
+
+      const payload: JWTPayload = {
+        full_name: user.full_name,
+        _id: user._id as Types.ObjectId, // Explicitly cast the Mongoose field to Types.ObjectId
+        role: user.role as Role,
+        email: user.email,
+      };
+
+      const token = generateJWTToken(payload);
+
+      res
+        .status(200)
+        .cookie("access_token", token, {
+          httpOnly: true,
+          maxAge:
+            parseInt(process.env.COOKIE_EXPIRES_IN ?? "1") * 60 * 60 * 1000,
+          secure: true,
+        })
+        .json({
+          message: "Login success",
+          success: true,
+          status: "success",
+          data: {
+            user,
+            access_token: token,
+          },
+        });
+    },
+  );
+
+  logout = asyncHandler(
+    async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+      res
+        .status(200)
+        .clearCookie("access_token", {
+          httpOnly: true,
+          secure: true,
+          sameSite: "lax", 
+        })
+        .json({
+          message: "Logout success",
+          success: true,
+          status: "success",
+          data: null,
+        });
+    },
+  );
 }
 
-export const userController = new Usercontroller();
+export const userController = new UserController();

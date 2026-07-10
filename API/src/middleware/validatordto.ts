@@ -1,34 +1,42 @@
 import { type Request, type Response, type NextFunction } from "express";
-import { ZodError, ZodObject } from "zod";
+import { ZodError, ZodTypeAny } from "zod";
 
-const bodyValidator = (schema: ZodObject) => {
+const bodyValidator = (schema: ZodTypeAny) => {
   return async (req: Request, res: Response, next: NextFunction) => {
     try {
       const data = req.body;
-      if (!data) {
-        throw {
-          code: 422,
+
+      if (!data || typeof data !== "object" || Array.isArray(data)) {
+        return next({
+          statusCode: 422,
+          status: "fail",
+          success: false,
           message: "Data is not set",
-        };
+        });
       }
 
       const parseData = await schema.parseAsync(data);
       req.body = parseData;
-      next();
+      return next();
     } catch (exception) {
       if (exception instanceof ZodError) {
+        const errbag: Record<string, string> = {};
 
-        let errbag: Record<string, string> = {};
+        exception.issues.forEach((err) => {
+          const path = err.path.length > 0 ? err.path.join(".") : "body";
+          errbag[path] = err.message;
+        });
 
-        exception.issues.map((err) => {
+        return next({
+          statusCode: 400,
+          status: "fail",
+          success: false,
+          detail: errbag,
+          message: "Validation Error",
+        });
+      }
 
-         errbag[err.path.join(".")] = err.message
-
-        })
-        next({code: 400, detail:errbag, message: "Validation Error"})
-      }else{next(exception);}
-
-      
+      return next(exception);
     }
   };
 };

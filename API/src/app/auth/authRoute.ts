@@ -15,4 +15,7 @@ authRouter.post(
 
 authRouter.post("/login", bodyValidator(LoginDTO), userController.login);
 
+authRouter.post("/logout", userController.logout);
+
+
 export default authRouter;
