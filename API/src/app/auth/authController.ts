@@ -60,7 +60,7 @@ class UserController {
 
       const payload: JWTPayload = {
         full_name: user.full_name,
-        _id: user._id as Types.ObjectId, // Explicitly cast the Mongoose field to Types.ObjectId
+        _id: user._id as Types.ObjectId, 
         role: user.role as Role,
         email: user.email,
       };
@@ -73,7 +73,7 @@ class UserController {
           httpOnly: true,
           maxAge:
             parseInt(process.env.COOKIE_EXPIRES_IN ?? "1") * 60 * 60 * 1000,
-          secure: true,
+          secure: false,
         })
         .json({
           message: "Login success",

@@ -2,15 +2,17 @@ import { Router } from "express";
 import { categoryController } from "./category.Controller";
 import bodyValidator from "../../middleware/validatordto";
 import { createCategoryDTO } from "./categoryDTO";
+import { authenticate } from "../../middleware/authenticate.middleware";
+
 
 
 const categoryRouter = Router()
 
 //register Category
 
-categoryRouter.post ('/', bodyValidator(createCategoryDTO), categoryController.create)
+categoryRouter.post ('/', authenticate(), bodyValidator(createCategoryDTO), categoryController.create)
 
-categoryRouter.get('/', categoryController.getAllCategories)
+categoryRouter.get('/', authenticate(), categoryController.getAllCategories)
 
 categoryRouter.get('/:id', categoryController.getCategorybyId)
 

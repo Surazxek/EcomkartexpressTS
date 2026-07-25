@@ -1,14 +1,21 @@
 import express, { Application, type Request, type Response, type NextFunction } from "express";
 import path from "path";
+import cookieParser from 'cookie-parser'
 import CustomError, { errorHandler } from "./middleware/Error-handler";
 import "./config/mongoDB"
 import mainRouter from "./router/mainRouter";
+import helmet from "helmet";
+
 
 const app: Application = express();
 
+// set security headers & removes insecure headers
+app.use(helmet());
 // Data parsing middleware
+app.use(cookieParser());
 app.use(express.json({limit: "5mb"}));
 app.use(express.urlencoded({limit: "5mb"}))
+
 
 //public dir folder
 app.use('/assets', express.static(path.join(process.cwd(), "public/uploads/")));
