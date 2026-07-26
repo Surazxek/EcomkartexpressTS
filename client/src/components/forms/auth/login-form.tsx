@@ -3,6 +3,11 @@ import Button from "../../common/buttons/button";
 import Input from "../../common/inputs/input";
 import { useForm, FormProvider } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { login } from "../../../api/auth";
+import { useMutation } from "@tanstack/react-query";
+import { useNavigate } from "react-router";
+import toast from "react-hot-toast";
+
 
 const LoginSchema = z.object({
   email: z.string().min(1, "Email is required").email("Invalid email format"),
@@ -12,7 +17,11 @@ const LoginSchema = z.object({
 
 type LoginFormData = z.infer<typeof LoginSchema>;
 
+
+
 const LoginForm = () => {
+  const navigate = useNavigate()
+
   const methods = useForm<LoginFormData>({
     defaultValues: {
       email: "",
@@ -22,9 +31,30 @@ const LoginForm = () => {
     mode: "all",
   });
 
-  const onSubmit = (data: LoginFormData) => {
-    console.log("form submitted", data);
-  };
+  const {mutate, isPending} = useMutation ({
+    mutationFn: login,
+    onSuccess: (data)  => {
+      console.log("Login sucess", data)
+      toast.success("Login sucessfull")
+      navigate('/')
+    },
+    onError: (error) => {
+      console.log("Error", error)
+      toast.error( error.message || "Login failed")
+
+    }
+   })
+
+  const onSubmit = async (data: LoginFormData) => {
+    // const response = await login(data);
+    // console.log(response)
+
+    mutate(data)
+
+
+  
+};
+
 
   return (
     <div>
@@ -57,7 +87,10 @@ const LoginForm = () => {
             />
           </div>
 
-          <Button label={"Login"} type="submit" />
+          <Button
+           isDisabled={isPending} 
+           label={ isPending ? 'Logging in..' : "Login"} 
+           type="submit" />
         </form>
       </FormProvider>
     </div>

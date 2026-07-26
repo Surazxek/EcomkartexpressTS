@@ -3,6 +3,7 @@ import Button from "../../common/buttons/button";
 import Input from "../../common/inputs/input";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { register } from "../../../api/auth";
 
 export const registerSchema = z.object({
   first_name: z.string()
@@ -16,7 +17,7 @@ export const registerSchema = z.object({
   password: z.string()
     .min(8, "Password must be at least 8 characters"),
   confirm_password: z.string(),
-  phone: z.string()
+  phone_number: z.string()
     .regex(/^(?:\+977|00977)?\s?(98\d{8}|97\d{8}|91\d{8}|0[1-9]\d{7})$/, "Invalid Nepali phone number is needed")
     .optional(),
 }).refine((data) => data.password === data.confirm_password, {
@@ -35,13 +36,15 @@ const RegisterForm = () => {
       email: "",
       password: "",
       confirm_password: "",
-      phone: "",
+      phone_number: "",
     },
     resolver: zodResolver(registerSchema),
   });
 
-  const onSubmit = (data: RegisterFormData) => {
-    console.log("form submitted", data);
+  const onSubmit = async (data: RegisterFormData) => {
+    // console.log("form submitted", data);
+    const Register = await register(data)
+    console.log(Register)
   };
 
   return (
@@ -94,8 +97,8 @@ const RegisterForm = () => {
             />
             <Input
               label="Phone Number"
-              id="phone"
-              name="phone"
+              id="phone_number"
+              name="phone_number"
               placeholder="+9779841xxxxx"
             />
             <Button label="Register" type="submit" />
