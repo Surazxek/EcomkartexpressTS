@@ -1,9 +1,8 @@
 import axios from "axios";
 
 const instance = axios.create({
-    baseURL: 'http://localhost:9002',
-    // timeout: 1000
-})
+  baseURL: import.meta.env.VITE_SERVER_API_URL,
+  // timeout: 1000
+});
 
-
-export default instance
+export default instance;

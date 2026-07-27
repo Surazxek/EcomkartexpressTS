@@ -9,5 +9,5 @@ export interface IRegister {
   email: string;
   password: string;
   confirm_password: string;
-  phone: string | number ;
+  phone_number: string | number ;
 }
