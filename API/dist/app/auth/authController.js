@@ -50,7 +50,7 @@ class UserController {
             //jwt here
             const payload = {
                 full_name: user.full_name,
-                _id: user._id, // Explicitly cast the Mongoose field to Types.ObjectId
+                _id: user._id,
                 role: user.role,
                 email: user.email,
             };
@@ -60,7 +60,7 @@ class UserController {
                 .cookie("access_token", token, {
                 httpOnly: true,
                 maxAge: parseInt(process.env.COOKIE_EXPIRES_IN ?? "1") * 60 * 60 * 1000,
-                secure: true,
+                secure: false,
             })
                 .json({
                 message: "Login success",
@@ -70,6 +70,21 @@ class UserController {
                     user,
                     access_token: token,
                 },
+            });
+        });
+        this.logout = (0, async_handler_1.asyncHandler)(async (req, res, next) => {
+            res
+                .status(200)
+                .clearCookie("access_token", {
+                httpOnly: true,
+                secure: true,
+                sameSite: "lax",
+            })
+                .json({
+                message: "Logout success",
+                success: true,
+                status: "success",
+                data: null,
             });
         });
     }

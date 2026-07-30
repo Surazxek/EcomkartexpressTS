@@ -11,5 +11,6 @@ const authRouter = (0, express_1.Router)();
 //registerUser
 authRouter.post("/register", (0, validatordto_1.default)(authDto_1.RegisterDTO), authController_1.userController.register);
 authRouter.post("/login", (0, validatordto_1.default)(authDto_1.LoginDTO), authController_1.userController.login);
+authRouter.post("/logout", authController_1.userController.logout);
 exports.default = authRouter;
 //# sourceMappingURL=authRoute.js.map

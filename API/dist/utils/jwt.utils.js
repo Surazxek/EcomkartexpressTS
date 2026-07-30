@@ -7,8 +7,11 @@ exports.decodeJWTToken = exports.generateJWTToken = void 0;
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN;
 const JWT_SECRET = process.env.JWT_SECRET;
+if (!JWT_SECRET) {
+    throw new Error("JWT_SECRET environment variable is required");
+}
 const generateJWTToken = (payload) => {
-    return jsonwebtoken_1.default.sign(payload, 'asdas', { expiresIn: JWT_EXPIRES_IN });
+    return jsonwebtoken_1.default.sign(payload, JWT_SECRET, { expiresIn: JWT_EXPIRES_IN });
 };
 exports.generateJWTToken = generateJWTToken;
 const decodeJWTToken = (token) => {

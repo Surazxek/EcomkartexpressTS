@@ -12,17 +12,23 @@ class UserController {
   // Register User
   register = asyncHandler(
     async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-      const { email, full_name, password, phone_number } = req.body;
+      const { email, first_name, last_name, password, phone_number } = req.body;
 
       if (!password) {
         throw new CustomError("Password is required.", 400);
       }
 
+      const existingUser = await UserModel.findOne({ email });
+      if (existingUser) {
+      throw new CustomError("This user already exists.", 409);
+    }
+
       const hashedPassword = await hash(password);
 
       const user = await UserModel.create({
         email,
-        full_name,
+        first_name,
+        last_name,
         password: hashedPassword,
         phone_number,
       });
@@ -53,14 +59,16 @@ class UserController {
       // Compare credentials
       const isPasswordMatched = await compare(password, user.password);
       if (!isPasswordMatched) {
-        throw new CustomError("Invalid email or password", 401);
+        throw new CustomError("Invalid email or password doesn't match", 401);
       }
 
       //jwt here
 
       const payload: JWTPayload = {
-        full_name: user.full_name,
-        _id: user._id as Types.ObjectId, 
+        first_name: user.first_name,
+        last_name: user.last_name,
+
+        _id: user._id as Types.ObjectId,
         role: user.role as Role,
         email: user.email,
       };
@@ -94,7 +102,7 @@ class UserController {
         .clearCookie("access_token", {
           httpOnly: true,
           secure: true,
-          sameSite: "lax", 
+          sameSite: "lax",
         })
         .json({
           message: "Logout success",

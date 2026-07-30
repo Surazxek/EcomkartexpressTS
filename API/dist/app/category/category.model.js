@@ -9,12 +9,13 @@ const categorySchema = new mongoose_1.default.Schema({
     name: {
         type: String,
         required: [true, 'name is required'],
-        trim: true
+        trim: true,
+        unique: true
     },
     description: {
         type: String,
         trim: true
     },
 }, { timestamps: true });
-exports.categoryModel = mongoose_1.default.model("catehory", categorySchema);
+exports.categoryModel = mongoose_1.default.model("category", categorySchema);
 //# sourceMappingURL=category.model.js.map

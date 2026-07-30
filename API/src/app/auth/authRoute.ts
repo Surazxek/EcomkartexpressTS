@@ -13,7 +13,7 @@ authRouter.post(
   userController.register,
 );
 
-authRouter.post("/login", bodyValidator(LoginDTO), userController.login);
+authRouter.post("/login", userController.login);
 
 authRouter.post("/logout", userController.logout);
 

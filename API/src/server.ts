@@ -1,19 +1,17 @@
+import http from "http";
+import app from "./app";
 
-import http from 'http';
-import app from './app';
+const server = http.createServer(app);
 
-const server = http.createServer(app)
-
-const PORT= 9002
+const PORT = Number(process.env.PORT) || 9002;
 
 server.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
-  console.log("Press ctrl + c to disconnect ")
+  console.log("Press ctrl + c to disconnect ");
 });
 
-
-server.on("error", (err)=> {
-    console.log(err)
-    console.log("Server Error", err.message)
-    process.exit(1)
-})
+server.on("error", (err) => {
+  console.log(err);
+  console.log("Server Error", err.message);
+  process.exit(1);
+});

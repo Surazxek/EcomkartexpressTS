@@ -3,41 +3,67 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const multer_1 = __importDefault(require("multer")); // need -D @types/multer
+const multer_1 = __importDefault(require("multer"));
 const path_1 = __importDefault(require("path"));
-const fs_1 = __importDefault(require("fs"));
+const multer_storage_cloudinary_1 = require("multer-storage-cloudinary");
+const cloudniary_comfig_1 = __importDefault(require("../config/cloudniary.comfig"));
 const uploader = () => {
-    // Local Storage (Disk Storage)
-    const myStorage = multer_1.default.diskStorage({
-        destination: (req, file, cb) => {
-            const fileLocation = path_1.default.join(process.cwd(), "public/uploads");
-            if (!fs_1.default.existsSync(fileLocation)) {
-                fs_1.default.mkdirSync(fileLocation, { recursive: true });
-            }
-            cb(null, fileLocation);
-        },
-        filename: (req, file, cb) => {
-            // a.jpg
-            const filename = Date.now() + "-" + file.originalname;
-            cb(null, filename);
-        },
+    const storage = new multer_storage_cloudinary_1.CloudinaryStorage({
+        cloudinary: cloudniary_comfig_1.default,
+        params: () => ({
+            folder: "E-comKart",
+        }),
     });
-    // external/cloud (s3bucket, Digital ocean, cloudinary)
     return (0, multer_1.default)({
-        storage: myStorage,
+        storage,
+        limits: {
+            fileSize: 5 * 1024 * 1024,
+        },
         fileFilter: (req, file, cb) => {
-            const ext = file.originalname.split(".").pop();
-            if (["jpg", "jpeg", "png", "svg", "webp", "pdf"].includes(ext?.toLowerCase())) {
+            const allowed = [".jpg", ".jpeg", ".png", ".pdf"];
+            const ext = path_1.default.extname(file.originalname).toLowerCase();
+            if (allowed.includes(ext)) {
                 cb(null, true);
             }
             else {
-                cb(new Error("File format not supported"));
+                cb(new Error("Only .jpg, .jpeg, .png and .pdf files are allowed"));
             }
-        },
-        limits: {
-            fileSize: 5 * 1024 * 1024,
         },
     });
 };
 exports.default = uploader;
+// import multer from "multer";
+// import path from "path";
+// import fs from "fs";
+// import crypto from "crypto";
+// import { CloudinaryStorage } from "multer-storage-cloudinary";
+// const uploader = () => {
+//   const uploadPath = path.join(process.cwd(), "public/uploads");
+//   const storage = multer.diskStorage({
+//     destination: (req, file, cb) => {
+//       if (!fs.existsSync(uploadPath)) {
+//         fs.mkdirSync(uploadPath, { recursive: true });
+//       }
+//       cb(null, uploadPath);
+//     },
+//     filename: (req, file, cb) => {
+//       const ext = path.extname(file.originalname).toLowerCase();
+//       cb(null, `${crypto.randomUUID()}${ext}`);
+//     },
+//   });
+//   return multer({
+//     storage,
+//     limits: { fileSize: 5 * 1024 * 1024 }, // 5 MB
+//     fileFilter: (req, file, cb) => {
+//       const allowed = [".jpg", ".jpeg", ".png", ".pdf"];
+//       const ext = path.extname(file.originalname).toLowerCase();
+//       if (allowed.includes(ext)) {
+//         cb(null, true); // accept file
+//       } else {
+//         cb(new Error("Only .jpg, .jpeg, .png, and .pdf files are allowed"));
+//       }
+//     },
+//   });
+// };
+// export default uploader;
 //# sourceMappingURL=UploaderMiddleware.js.map

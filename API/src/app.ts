@@ -5,15 +5,24 @@ import CustomError, { errorHandler } from "./middleware/Error-handler";
 import "./config/mongoDB"
 import mainRouter from "./router/mainRouter";
 import helmet from "helmet";
+import cors from 'cors'
 
 
 const app: Application = express();
+
+//
+app.use(cors({
+  origin: '*'
+}));
+
 
 // set security headers & removes insecure headers
 app.use(helmet());
 // Data parsing middleware
 app.use(cookieParser());
+//File Limit
 app.use(express.json({limit: "5mb"}));
+//parse URLLENCODED
 app.use(express.urlencoded({limit: "5mb"}))
 
 

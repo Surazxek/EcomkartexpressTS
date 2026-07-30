@@ -29,7 +29,17 @@ export const authenticate = (roles?: Role[]) => {
       }
 
       // Attach user to request
-      (req as any).user = user
+      // (req as any).user = user
+       
+      req.user = {
+        _id: user._id,
+        role:user.role,
+        email: user.email,
+        first_name: user.first_name,
+        last_name: user.last_name
+
+      }
+
       next()
     } catch (error) {
       next(error)

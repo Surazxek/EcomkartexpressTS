@@ -1,20 +1,19 @@
 import { z } from "zod";
 
 export const RegisterDTO = z.object({
-  full_name: z
+  first_name: z
     .string()
-    .min(3, "Full name must be at least 3 characters")
-    .max(50, "Full name must not exceed 50 characters")
-    .regex(
-      /^[A-Za-z\s]+$/,
-      "Full name can only contain letters and spaces"
-    )
-    .trim(),
+    .min(2, "First name must be at least 2 characters")
+    .max(30, "First name must not exceed 30 characters")
+    .regex(/^[A-Za-z]+$/, "First name can only contain letters"),
 
-  email: z
+  last_name: z
     .string()
-    .email("Invalid email address")
-    .toLowerCase(),
+    .min(2, "Last name must be at least 2 characters")
+    .max(30, "Last name must not exceed 30 characters")
+    .regex(/^[A-Za-z]+$/, "Last name can only contain letters"),
+
+  email: z.string().email("Invalid email address").toLowerCase(),
 
   password: z
     .string()
@@ -22,28 +21,20 @@ export const RegisterDTO = z.object({
     .max(30, "Password must not exceed 30 characters")
     .regex(
       /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]+$/,
-      "Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character"
+      "Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character",
     ),
 
   phone_number: z
     .string()
     .regex(
-      /^(98|97)\d{8}$/,
-      "Phone number must be a valid Nepal mobile number"
-    ),
+      /^(?:\+977|00977)?\s?(98\d{8}|97\d{8})$/,
+      "Phone number must be a valid Nepali mobile number",
+    )
+    .optional(),
 });
-
 
 export const LoginDTO = z.object({
-  email: z
-    .string()
-    .email("Invalid email address")
-    .toLowerCase()
-    .trim(),
+  email: z.string().email("Invalid email address").toLowerCase().trim(),
 
-  password: z
-    .string()
-    .min(5, "Password is required"),
+  password: z.string().min(5, "Password is required"),
 });
-
-
