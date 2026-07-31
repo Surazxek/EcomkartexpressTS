@@ -1,8 +1,9 @@
 import { Router } from "express";
-import authRouter from "../app/auth/authRoute";
-import categoryRouter from "../app/category/categoryRoute";
-import productRouter from "../app/products/product Route";
-import cartRouter from "../app/cart/cartRoute";
+import authRouter from "../app/auth/auth.route";
+import categoryRouter from "../app/category/category.route";
+import productRouter from "../app/products/product.route";
+import cartRouter from "../app/cart/cart.route";
+import wishListRouter from "../app/wishlist/wishlist.route";
 
 const mainRouter = Router();
 
@@ -13,5 +14,8 @@ mainRouter.use("/category", categoryRouter )
 mainRouter.use ("/product", productRouter)
 
 mainRouter.use ("/cart", cartRouter)
+
+
+mainRouter.use('/wishlist', wishListRouter)
 
 export default mainRouter;

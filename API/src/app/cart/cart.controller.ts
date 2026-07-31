@@ -32,12 +32,12 @@ create = asyncHandler(async (req: Request, res: Response, next: NextFunction) =>
 
   if (existingItem) {
     existingItem.quantity += qty;
-    existingItem.total_price = product.price * existingItem.quantity; // ✅ update item total
+    existingItem.total_price = product.price * existingItem.quantity; // update item total
   } else {
     cart.items.push({
       product: productId,
       quantity: qty,
-      total_price: product.price * qty, // ✅ set item total
+      total_price: product.price * qty, //  set item total
     });
   }
 

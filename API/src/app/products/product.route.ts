@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { authenticate } from "../../middleware/authenticate.middleware";
-import { productController } from "./product controller";
+import { productController } from "./product.controller";
 import { onlyAdmin } from "../../types/globalTypes";
 import uploader from "../../middleware/UploaderMiddleware";
 

@@ -2,7 +2,7 @@ import { Router } from "express";
 
 import bodyValidator from "../../middleware/validatordto";
 import { LoginDTO, RegisterDTO } from "./authDto";
-import { userController } from "./authController";
+import { userController } from "./auth.Controller";
 
 const authRouter = Router();
 
