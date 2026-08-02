@@ -1,4 +1,4 @@
-import { Types } from "mongoose";
+import { Schema, Types } from "mongoose";
 
 export enum Role {
   ADMIN = "ADMIN",
@@ -19,3 +19,10 @@ export interface JWTPayload {
   iat?: number; // issued at (seconds since epoch)
   exp?: number; // expiration (seconds since epoch)
 }
+
+
+// export interface IImages {
+//   path: string;
+//   public_id: string;
+ 
+// }

@@ -9,21 +9,20 @@ cloudinary.config({
 });
 
 export interface IImages {
-  path: string;
+  path?: string;
   public_id: string;
-  _id: Schema.Types.ObjectId;
+  _id?: Schema.Types.ObjectId;
 }
 
 export const removeImages = async (images: IImages[]) => {
   try {
-    for (const image of images) {
-      await cloudinary.uploader.destroy(image.public_id);
-    }
-  } catch {
-    throw new CustomError(
-      "Something went wrong, can't delete images",
-      500
+    await Promise.all(
+      images
+        .filter((image) => Boolean(image.public_id))
+        .map((image) => cloudinary.uploader.destroy(image.public_id)),
     );
+  } catch {
+    throw new CustomError("Something went wrong, can't delete images", 500);
   }
 };
 

@@ -22,19 +22,19 @@ productRouter.get("/", productController.getAllProducts);
 
 productRouter.get("/:id", productController.getProductById);
 
-// productRouter.put(
-//   "/:id",
-//   authenticate(onlyAdmin),
-//   uploader().fields([
-//     { name: "coverImage", maxCount: 1 },
-//     { name: "images", maxCount: 5 },
-//   ]),
-//   productController.updateProduct,
-// );
-
-productRouter.delete(
+productRouter.put(
   "/:id",
   authenticate(onlyAdmin),
+  uploader().fields([
+    { name: "coverImage", maxCount: 1 },
+    { name: "images", maxCount: 5 },
+  ]),
+  productController.updateProduct,
+);
+
+productRouter.delete(
+  "/:id", authenticate(onlyAdmin),
+  
   productController.deleteProduct,
 );
 
