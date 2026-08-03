@@ -112,13 +112,13 @@ class ProductController {
   );
 
 updateProduct = asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
-  // console.log("========== UPDATE PRODUCT ==========");
+ 
 
   const { id } = req.params;
-  console.log("1. Product ID:", id);
+  // console.log("1. Product ID:", id);
 
-  console.log("2. Body:", req.body);
-  console.log("3. Files:", req.files);
+  // console.log("2. Body:", req.body);
+  // console.log("3. Files:", req.files);
 
   const product = await prodcutModel.findById(id);
 

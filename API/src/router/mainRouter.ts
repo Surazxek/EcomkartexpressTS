@@ -4,6 +4,7 @@ import categoryRouter from "../app/category/category.route";
 import productRouter from "../app/products/product.route";
 import cartRouter from "../app/cart/cart.route";
 import wishListRouter from "../app/wishlist/wishlist.route";
+import orderRouter from "../app/order/order.route";
 
 const mainRouter = Router();
 
@@ -17,5 +18,7 @@ mainRouter.use ("/cart", cartRouter)
 
 
 mainRouter.use('/wishlist', wishListRouter)
+
+mainRouter.use('/order', orderRouter)
 
 export default mainRouter;
