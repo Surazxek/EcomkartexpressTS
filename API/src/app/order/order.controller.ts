@@ -3,6 +3,7 @@ import { asyncHandler } from "../../utils/async-handler";
 import { prodcutModel } from "../products/product.model";
 import CustomError from "../../middleware/Error-handler";
 import { ordermodel } from "./order.model";
+import { OrderStatus } from "../../types/globalTypes";
 
 class OrderController {
   create = asyncHandler(async (req: Request, res: Response) => {
@@ -104,12 +105,12 @@ class OrderController {
   removeOrder = asyncHandler(async (req: Request, res: Response) => {
   const { id } = req.params;
 
-  console.log("ID:", id);
+  // console.log("ID:", id);
 
   // Find and Delete Order
   const deletedOrder = await ordermodel.findByIdAndDelete(id);
 
-  console.log("Deleted Order:", deletedOrder);
+  // console.log("Deleted Order:", deletedOrder);
 
   // Check if order exists
   if (!deletedOrder) {
@@ -146,9 +147,36 @@ updateOrder = asyncHandler(async(req:Request, res:Response) => {
     message: "Order updated successfully",
     data: order,
   });
-   
 
 })
+
+cancelOrderByUser = asyncHandler(async(req:Request, res: Response) => {
+       
+     const {id} = req.params
+
+     const userId = req.user._id;
+
+     const order = await ordermodel.findById(id)
+
+     if(!order) {
+      throw new CustomError("Error ORder ID not found", 400)
+     }
+
+     if(order.user?.toString() === userId.toString()) {
+      throw new CustomError("You cannot cancel this order", 403)
+     }
+
+     order.status = OrderStatus.CANCELED
+
+     await order.save()
+
+     res.status(200).json({
+      message: 'Order canceled sucessfully',
+      success: true,
+      status: 'success' ,
+     data: order    })
+
+    })
 
 
   

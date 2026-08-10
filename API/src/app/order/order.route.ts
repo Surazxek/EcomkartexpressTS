@@ -35,11 +35,13 @@ orderRouter.get(
 // Delete Order (Admin)
 orderRouter.delete(
   "/:id",
-  authenticate(onlyAdmin || onlyUser),
+  authenticate(onlyAdmin ),
   orderController.removeOrder
 );
 
 orderRouter.put('/:id', authenticate(onlyAdmin), orderController.updateOrder)
+
+orderRouter.delete('/cancel/:id', authenticate(onlyUser), orderController.cancelOrderByUser)
 
 
 

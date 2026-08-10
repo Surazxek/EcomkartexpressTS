@@ -1,3 +1,4 @@
+import { pagination } from './../../utils/pagination.utils';
 import { prodcutModel } from "./product.model";
 import { type Request, type Response, type NextFunction } from "express";
 import { asyncHandler } from "../../utils/async-handler";
@@ -5,6 +6,7 @@ import CustomError from "../../middleware/Error-handler";
 import { categoryModel } from "../category/category.model";
 import mongoose from "mongoose";
 import cloudinary, { removeImages } from "../../config/cloudniary.comfig";
+
 // import { IImages } from "../../types/globalTypes";
 
 class ProductController {
@@ -82,20 +84,92 @@ class ProductController {
     },
   );
 
-  getAllProducts = asyncHandler(
-    async (req: Request, res: Response, next: NextFunction) => {
-      const products = await prodcutModel.find().populate("category");
-      res.status(200).json({
-        message: "Products fetched successfully",
-        success: true,
-        status: "success",
-        data: products,
-      });
-    },
-  );
+getAllProducts = asyncHandler(
+  async (req: Request, res: Response) => {
+    const {
+      query,
+      minPrice,
+      maxPrice,
+      category,
+      limit = "10",
+      page = "1",
+    } = req.query;
+
+    const filter: Record<string, any> = {};
+
+    // Pagination
+    const perPage = parseInt(limit as string);
+    const currentPage = parseInt(page as string);
+
+    const skip = (currentPage - 1) * perPage;
+
+    // Search name + description
+    if (query) {
+      filter.$or = [
+        {
+          name: {
+            $regex: query,
+            $options: "i",
+          },
+        },
+        {
+          description: {
+            $regex: query,
+            $options: "i",
+          },
+        },
+      ];
+    }
+
+    // Price filter
+    if (minPrice || maxPrice) {
+      filter.price = {};
+
+      if (minPrice) {
+        filter.price.$gte = Number(minPrice);
+      }
+
+      if (maxPrice) {
+        filter.price.$lte = Number(maxPrice);
+      }
+    }
+
+    // Category filter
+    if (category) {
+      filter.category = category;
+    }
+
+    // Fetch products
+    const products = await prodcutModel
+      .find(filter)
+      .populate("category")
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(perPage);
+
+    // Count matching products
+    const totalData = await prodcutModel.countDocuments(filter);
+
+
+    const Pagination = pagination(totalData, perPage, currentPage )
+    
+
+    res.status(200).json({
+      message: "Products fetched successfully",
+      success: true,
+      status: "success",
+
+      data: {
+        products,
+
+        Pagination
+      },
+    });
+  }
+);
 
   getProductById = asyncHandler(
-    async (req: Request, res: Response, next: NextFunction) => {
+    async (req: Request, res: Response) => {
       const { id } = req.params;
       const products = await prodcutModel.findById(id).populate("category");
 
@@ -111,136 +185,127 @@ class ProductController {
     },
   );
 
-updateProduct = asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
- 
+  updateProduct = asyncHandler(
+    async (req: Request, res: Response, next: NextFunction) => {
+      const { id } = req.params;
+      // console.log("1. Product ID:", id);
 
-  const { id } = req.params;
-  // console.log("1. Product ID:", id);
+      // console.log("2. Body:", req.body);
+      // console.log("3. Files:", req.files);
 
-  // console.log("2. Body:", req.body);
-  // console.log("3. Files:", req.files);
+      const product = await prodcutModel.findById(id);
 
-  const product = await prodcutModel.findById(id);
+      console.log("4. Product:", product);
 
-  console.log("4. Product:", product);
+      if (!product) {
+        console.log("5. Product Not Found");
+        throw new CustomError("Product not found", 404);
+      }
 
-  if (!product) {
-    console.log("5. Product Not Found");
-    throw new CustomError("Product not found", 404);
-  }
+      const { name, price, category, description, stock, isFeatured } =
+        req.body;
 
-  const {
-    name,
-    price,
-    category,
-    description,
-    stock,
-    isFeatured,
-  } = req.body;
+      // console.log(req.body);
 
-  // console.log(req.body);
+      if (name) {
+        product.name = name;
+        console.log("Updated Name:", product.name);
+      }
 
- 
+      if (price) {
+        product.price = Number(price);
+        console.log("Updated Price:", product.price);
+      }
 
-  if (name) {
-    product.name = name;
-    console.log("Updated Name:", product.name);
-  }
+      if (stock) {
+        product.stock = Number(stock);
+        console.log("Updated Stock:", product.stock);
+      }
 
-  if (price) {
-    product.price = Number(price);
-    console.log("Updated Price:", product.price);
-  }
+      if (description) {
+        product.description = description;
+        console.log("Updated Description:", product.description);
+      }
 
-  if (stock) {
-    product.stock = Number(stock);
-    console.log("Updated Stock:", product.stock);
-  }
+      if (isFeatured !== undefined) {
+        product.isFeatured = isFeatured === "true";
+        console.log("Updated Featured:", product.isFeatured);
+      }
 
-  if (description) {
-    product.description = description;
-    console.log("Updated Description:", product.description);
-  }
+      if (category) {
+        console.log("7. Checking Category...");
 
-  if (isFeatured !== undefined) {
-    product.isFeatured = isFeatured === "true";
-    console.log("Updated Featured:", product.isFeatured);
-  }
+        if (!mongoose.Types.ObjectId.isValid(category)) {
+          throw new CustomError("Invalid Category ID", 400);
+        }
 
-  if (category) {
-    console.log("7. Checking Category...");
+        const existingCategory = await categoryModel.findById(category);
 
-    if (!mongoose.Types.ObjectId.isValid(category)) {
-      throw new CustomError("Invalid Category ID", 400);
-    }
+        if (!existingCategory) {
+          throw new CustomError("Category not found", 404);
+        }
 
-    const existingCategory = await categoryModel.findById(category);
+        product.category = category;
+        console.log("Updated Category");
+      }
 
-    if (!existingCategory) {
-      throw new CustomError("Category not found", 404);
-    }
+      console.log("8. Before Save:", product);
 
-    product.category = category;
-    console.log("Updated Category");
-  }
+      await product.save();
 
-  console.log("8. Before Save:", product);
+      console.log("9. Product Saved");
 
-  await product.save();
+      res.status(200).json({
+        success: true,
+        status: "success",
+        message: "Product updated successfully",
+        data: product,
+      });
+    },
+  );
 
-  console.log("9. Product Saved");
+  deleteProduct = asyncHandler(
+    async (req: Request, res: Response, next: NextFunction) => {
+      const { id } = req.params;
+      // console.log("1. Product ID:", id);
 
-  res.status(200).json({
-    success: true,
-    status: "success",
-    message: "Product updated successfully",
-    data: product,
-  });
-});
+      const product = await prodcutModel.findById(id);
+      //  console.log("2. Product Found:", product);
 
-deleteProduct = asyncHandler(async (req: Request, res: Response, next:NextFunction) => {
-  
-  const { id } = req.params;
-    // console.log("1. Product ID:", id);
+      if (!product) {
+        throw new CustomError("Product not found", 404);
+      }
 
-  const product = await prodcutModel.findById(id);
-  //  console.log("2. Product Found:", product);
+      // Delete Cover Image
+      if (product.coverImage) {
+        await removeImages([
+          {
+            path: product.coverImage.path,
+            public_id: product.coverImage.public_id,
+          },
+        ]);
+      }
 
-  if (!product) {
-    throw new CustomError("Product not found", 404);
-  }
+      // Delete Gallery Images
+      if (product.images.length > 0) {
+        await removeImages(
+          product.images.map((image) => ({
+            path: image.path ?? "",
+            public_id: image.public_id ?? "",
+          })),
+        );
+      }
 
-  // Delete Cover Image
-  if (product.coverImage) {
-    await removeImages([
-      {
-        path: product.coverImage.path,
-        public_id: product.coverImage.public_id,
-      },
-    ]);
-  }
+      // Delete Product
+      await product.deleteOne();
 
-  // Delete Gallery Images
-  if (product.images.length > 0) {
-    await removeImages(
-      product.images.map((image) => ({
-        path: image.path ?? "",
-        public_id: image.public_id ?? "",
-      }))
-    );
-  }
-
-  // Delete Product
-  await product.deleteOne();
-
-  res.status(200).json({
-    success: true,
-    status: "success",
-    message: "Product deleted successfully",
-  });
-});
-
-  
+      res.status(200).json({
+        success: true,
+        status: "success",
+        message: "Product deleted successfully",
+      });
+    },
+  );
 }
 
 export const productController = new ProductController();

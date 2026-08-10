@@ -13,6 +13,10 @@ authRouter.post(
   userController.register,
 );
 
+authRouter.get(
+  "/verify-email",
+  userController.verifyEmail
+);
 authRouter.post("/login", userController.login);
 
 authRouter.post("/logout", userController.logout);

@@ -4,6 +4,7 @@ import { categoryModel } from "./category.model";
 import CustomError from "../../middleware/Error-handler";
 
 
+
 class ProductController {
   // Create New Category
    create = asyncHandler(async(req: Request, res: Response, next: NextFunction) => {
@@ -40,6 +41,8 @@ class ProductController {
 
  getAllCategories = asyncHandler(async(req: Request, res: Response, next: NextFunction) =>{
     const categories = await categoryModel.find()
+
+   
 
      res.status(200).json({
       message: "Categories fetched successfully",
