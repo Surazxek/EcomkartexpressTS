@@ -1,5 +1,5 @@
-import Footer from "../components/footer/footer";
-import Header from "../components/header";
+
+import CategoryList from "../components/landing/category/categoryListcomponenet";
 import FeaturedProduct from "../components/landing/featured-product";
 import Hero from "../components/landing/hero";
 import SummerSale from "../components/landing/summer-sale";
@@ -9,10 +9,11 @@ import SummerSale from "../components/landing/summer-sale";
 const Homepage = () => {
   return (
       <main>
-        {/* Navbar */}
-        <Header />
+       
         {/* Hero */}
         <Hero />
+
+        <CategoryList />
 
         {/* Product Card */}
        
@@ -27,9 +28,7 @@ const Homepage = () => {
         
 
 
-        {/* Footer */}
-
-        <Footer />
+      
       </ main>
   );
 };

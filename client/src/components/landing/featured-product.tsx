@@ -1,21 +1,29 @@
 import ProductCard from "../products/card";
 import ComponentTitle from "./componenetTitle.button";
 
-const data = Array.from({ length: 12 }, (_, i) => i);
+const mockProducts = Array.from({ length: 12 }, (_, i) => ({
+  _id: `featured-${i}`,
+  name: `Featured Product ${i + 1}`,
+  description: "High quality product with excellent features",
+  price: 1999 + i * 250,
+  stock: 20 + i,
+  createdAt: new Date().toISOString(),
+  updatedAt: new Date().toISOString(),
+}));
 
 const FeaturedProduct = () => {
   return (
     <div className="mt-4 px-36">
-     <ComponentTitle
-     title='Featured Products'
-     subTitle = 'Our featured products'
-     key={'featured_component_title'}
-     link = '#'
-     />
+      <ComponentTitle
+        title="Featured Products"
+        subTitle="Our featured products"
+        key={"featured_component_title"}
+        link="#"
+      />
 
       <div className="mt-8 flex flex-wrap gap-6">
-        {data.map((item) => (
-          <ProductCard key={item} />
+        {mockProducts.map((product) => (
+          <ProductCard key={product._id} product={product} />
         ))}
       </div>
     </div>
@@ -24,42 +32,8 @@ const FeaturedProduct = () => {
 
 export default FeaturedProduct;
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 // import ProductCard from "../products/card"
- 
+
 // const data = Array.from({ length: 10 });
 
 // const FeaturedProduct = () => {

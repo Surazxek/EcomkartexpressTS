@@ -6,29 +6,20 @@ export interface IProductData {
   description: string;
   price: number;
   stock: number;
-
   coverImage?: {
     path: string;
     public_id: string;
   };
-
   createdAt: string;
   updatedAt: string;
 }
 
 interface IProps {
   product: IProductData;
-  onViewDetails?: (productId: string) => void;
-  onWishlistToggle?: (productId: string) => void;
-  isInWishlist?: boolean;
+  onClick?: () => void; // optional toggle/remove handler
 }
 
-const ProductCard: FC<IProps> = ({
-  product,
-  onViewDetails,
-  onWishlistToggle,
-  isInWishlist = false,
-}) => {
+const WishlistProductCard: FC<IProps> = ({ product, onClick }) => {
   return (
     <div className="max-w-[300px] flex flex-col px-1">
       {/* Product Image */}
@@ -45,44 +36,30 @@ const ProductCard: FC<IProps> = ({
         <h1 className="text-teal-600 font-bold text-xl line-clamp-1">
           {product.name}
         </h1>
-
         <p className="line-clamp-2 min-h-[48px]">{product.description}</p>
 
-        {/* Price & Stock */}
         <div className="flex mt-2 justify-between text-lg">
           <p>Rs.{product.price}</p>
-
           <p>
             Stock:{" "}
-            <span
-              className={product.stock > 0 ? "text-green-700" : "text-red-600"}
-            >
+            <span className={product.stock > 0 ? "text-green-700" : "text-red-600"}>
               {product.stock}
             </span>
           </p>
         </div>
-      </div>
 
-      {/* Buttons */}
-      <div className="flex justify-between items-center mt-5 gap-3">
-        <button
-          type="button"
-          onClick={() => onViewDetails?.(product._id)}
-          className="flex-1 rounded-lg bg-teal-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-teal-700 cursor-pointer"
-        >
-          View Details
-        </button>
-
-        <button
-          type="button"
-          onClick={() => onWishlistToggle?.(product._id)}
-          className="flex-1 rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 transition hover:border-teal-600 hover:text-teal-600 cursor-pointer"
-        >
-          {isInWishlist ? "Remove" : "Add to Wishlist"}
-        </button>
+        {/* Toggle button */}
+        {onClick && (
+          <button
+            onClick={onClick}
+            className="mt-3 bg-teal-600 text-white px-3 py-1 rounded"
+          >
+            Remove
+          </button>
+        )}
       </div>
     </div>
   );
 };
 
-export default ProductCard;
+export default WishlistProductCard;

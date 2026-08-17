@@ -1,19 +1,19 @@
 import type { FC } from "react";
 import { FaChevronRight } from "react-icons/fa6";
-import { Link } from "react-router";
+import { Link } from "react-router"
 
-type IProps = {
+interface IProps {
   link?: string;
-  title: string;      
+  title: string;
   subTitle: string;
-};
+}
 
 const ComponentTitle: FC<IProps> = ({ title, subTitle, link }) => {
   return (
     <div className="flex items-center justify-between mb-10">
       <div>
-        <h1 className="text-4xl font-bold text-teal-700 mt-4">{title}</h1>
-        <p className="text-teal-600 mt-1">{subTitle}</p>
+        <h1 className="text-3xl font-extrabold text-teal-700 mt-4">{title}</h1>
+        <p className="text-gray-800 font-medium mt-1">{subTitle}</p>
       </div>
 
       {link && (

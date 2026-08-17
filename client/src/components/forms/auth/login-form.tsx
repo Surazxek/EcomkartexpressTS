@@ -7,6 +7,7 @@ import { login } from "../../../api/auth";
 import { useMutation } from "@tanstack/react-query";
 import { useNavigate } from "react-router";
 import toast from "react-hot-toast";
+import { useAuthStore } from "../../../store/authStore";
 
 const LoginSchema = z.object({
   email: z.string().min(1, "Email is required").email("Invalid email format"),
@@ -28,10 +29,18 @@ const LoginForm = () => {
 
   const navigate = useNavigate();
 
+   // ✅ Grab Zustand action (instead of Context)
+  const { setUser } = useAuthStore();
+
+
+
   const { mutate, isPending } = useMutation({
     mutationFn: login,
     onSuccess: (data) => {
-      console.log("Login sucess", data);
+     setUser(data.data.user)
+     console.log("zustand", useAuthStore.getState().user)
+       //zustand
+       setUser(data.data.user);
 
       //storing userObj &  token on local stoage ko lagi 
       localStorage.setItem('user',JSON.stringify(data.data.user))
