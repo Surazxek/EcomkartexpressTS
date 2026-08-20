@@ -7,7 +7,7 @@ import { login } from "../../../api/auth";
 import { useMutation } from "@tanstack/react-query";
 import { useNavigate } from "react-router";
 import toast from "react-hot-toast";
-import { useAuthStore } from "../../../store/authStore";
+import { useAuth } from "../../../hooks/auth.hook";
 
 const LoginSchema = z.object({
   email: z.string().min(1, "Email is required").email("Invalid email format"),
@@ -29,8 +29,10 @@ const LoginForm = () => {
 
   const navigate = useNavigate();
 
-   // ✅ Grab Zustand action (instead of Context)
-  const { setUser } = useAuthStore();
+   //  Grab Zustand action (instead of Context)
+  // const { setUser } = useAuthStore();
+
+  const {setUser} = useAuth()
 
 
 
@@ -38,12 +40,12 @@ const LoginForm = () => {
     mutationFn: login,
     onSuccess: (data) => {
      setUser(data.data.user)
-     console.log("zustand", useAuthStore.getState().user)
+    //  console.log("zustand", useAuthStore.getState().user)
        //zustand
        setUser(data.data.user);
 
       //storing userObj &  token on local stoage ko lagi 
-      localStorage.setItem('user',JSON.stringify(data.data.user))
+      // localStorage.setItem('user',JSON.stringify(data.data.user))  yo code le double local storage create garyoo i have in zustand already
       // localStorage.setItem("token", data.access_token);
 
       toast.success( data.message ?? "Login sucessfull");
